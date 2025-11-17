@@ -1,23 +1,27 @@
 package app.molby.rcrecommender.api.coaster;
 
+import app.molby.rcrecommender.api.shared.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class RollerCoasterNotFoundExceptionTest {
-
-    @InjectMocks
-    private RollerCoasterNotFoundException subject;
+class RollerCoasterNotFoundExceptionTest {
 
     @Test
-    void subjectIsCreated() {
-        assertNotNull(subject);
+    void constructor_shouldBuildMessageWithCoasterAndId() {
+        Long id = 123L;
+
+        RollerCoasterNotFoundException ex = new RollerCoasterNotFoundException(id);
+
+        assertTrue(ex instanceof ResourceNotFoundException);
+        assertEquals("Roller coaster with id 123 not found", ex.getMessage());
     }
 
+    @Test
+    void constructor_shouldHandleNullIdInMessage() {
+        RollerCoasterNotFoundException ex = new RollerCoasterNotFoundException(null);
+
+        // ResourceNotFoundException builds message as: resourceName + " with id " + id + " not found"
+        assertEquals("Roller coaster with id null not found", ex.getMessage());
+    }
 }

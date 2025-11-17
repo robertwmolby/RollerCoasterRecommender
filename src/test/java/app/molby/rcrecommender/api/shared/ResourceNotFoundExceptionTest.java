@@ -1,23 +1,33 @@
 package app.molby.rcrecommender.api.shared;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class ResourceNotFoundExceptionTest {
-
-    @InjectMocks
-    private ResourceNotFoundException subject;
+class ResourceNotFoundExceptionTest {
 
     @Test
-    void subjectIsCreated() {
-        assertNotNull(subject);
+    void constructor_buildsMessageWithResourceNameAndId() {
+        ResourceNotFoundException ex =
+                new ResourceNotFoundException("User", 42L);
+
+        assertTrue(ex instanceof RuntimeException);
+        assertEquals("User with id 42 not found", ex.getMessage());
     }
 
+    @Test
+    void constructor_handlesNullIdInMessage() {
+        ResourceNotFoundException ex =
+                new ResourceNotFoundException("User", null);
+
+        assertEquals("User with id null not found", ex.getMessage());
+    }
+
+    @Test
+    void constructor_acceptsNonLongIdTypes() {
+        ResourceNotFoundException ex =
+                new ResourceNotFoundException("Coaster rating", "ABC-123");
+
+        assertEquals("Coaster rating with id ABC-123 not found", ex.getMessage());
+    }
 }

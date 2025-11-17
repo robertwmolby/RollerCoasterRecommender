@@ -7,8 +7,20 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+/**
+ * SecurityConfig security-related component.
+ * @author Bob Molby
+ */
 public class SecurityConfig {
 
+
+    /**
+     * devFilterChain Security filter for development profile.  Wide open.
+     * Not to be used in production.
+     *
+     * @param http security requests
+     * @return Filterchain for next actions in processing request
+     */
     @Bean
     @Profile("dev")
     public SecurityFilterChain devFilterChain(HttpSecurity http) throws Exception {
@@ -28,6 +40,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * devFilterChain Security filter for other requests
+     *
+     * !!! RIGHT NOW THIS IS COMPLETELY OPEN AS IT IS BEIN USED SIMPLY FOR DEMONSTRATION PURPOSES !!!
+     * In a real environment we would likely implement oauth or some other jwt based security mechanism.
+     *
+     * @param http security requests
+     * @return Filterchain for next actions in processing request
+     */
     @Bean
     @Profile("!dev")
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

@@ -23,6 +23,9 @@ import java.util.List;
         name = "Countries",
         description = "CRUD operations for countries where roller coasters are located."
 )
+/**
+ * CountryController REST controller in the roller coaster recommender application.
+ */
 public class CountryController {
 
     private final CountryService service;
@@ -47,8 +50,7 @@ public class CountryController {
                                     value = """
                                         {
                                           "id": 1,
-                                          "code": "US",
-                                          "name": "United States"
+                                          "countryName": "United States"
                                         }
                                         """
                             )
@@ -77,8 +79,7 @@ public class CountryController {
                                     summary = "Country creation request example",
                                     value = """
                                         {
-                                          "code": "US",
-                                          "name": "United States"
+                                          "countryName": "United States"
                                         }
                                         """
                             )
@@ -86,9 +87,9 @@ public class CountryController {
             )
             @RequestBody @Valid CountryDto dto
     ) {
-        CountryEntity toSave = mapper.toEntity(dto);
+        CountryEntity toSave = mapper.toCountryEntity(dto);
         CountryEntity saved = service.create(toSave);
-        return mapper.toDto(saved);
+        return mapper.toCountryDto(saved);
     }
 
     @GetMapping("/{id}")
@@ -109,8 +110,7 @@ public class CountryController {
                                     value = """
                                         {
                                           "id": 1,
-                                          "code": "US",
-                                          "name": "United States"
+                                          "countryName": "United States"
                                         }
                                         """
                             )
@@ -136,7 +136,7 @@ public class CountryController {
             @PathVariable Long id
     ) {
         CountryEntity entity = service.getById(id);
-        return mapper.toDto(entity);
+        return mapper.toCountryDto(entity);
     }
 
     @GetMapping
@@ -157,13 +157,11 @@ public class CountryController {
                                 [
                                   {
                                     "id": 1,
-                                    "code": "US",
-                                    "name": "United States"
+                                    "countryName": "United States"
                                   },
                                   {
                                     "id": 2,
-                                    "code": "CA",
-                                    "name": "Canada"
+                                    "countryName": "Canada"
                                   }
                                 ]
                                 """
@@ -172,7 +170,7 @@ public class CountryController {
     )
     public List<CountryDto> getAll() {
         return service.getAll().stream()
-                .map(mapper::toDto)
+                .map(mapper::toCountryDto)
                 .toList();
     }
 
@@ -194,8 +192,7 @@ public class CountryController {
                                     value = """
                                         {
                                           "id": 1,
-                                          "code": "US",
-                                          "name": "United States of America"
+                                          "countryName": "United States"
                                         }
                                         """
                             )
@@ -240,8 +237,8 @@ public class CountryController {
                                     summary = "Country update request example",
                                     value = """
                                         {
-                                          "code": "US",
-                                          "name": "United States of America"
+                                          "id": "1",
+                                          "countryName": "United States"
                                         }
                                         """
                             )
@@ -249,9 +246,9 @@ public class CountryController {
             )
             @RequestBody @Valid CountryDto dto
     ) {
-        CountryEntity newState = mapper.toEntity(dto);
+        CountryEntity newState = mapper.toCountryEntity(dto);
         CountryEntity updated = service.update(id, newState);
-        return mapper.toDto(updated);
+        return mapper.toCountryDto(updated);
     }
 
     @DeleteMapping("/{id}")

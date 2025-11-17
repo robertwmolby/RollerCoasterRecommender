@@ -1,5 +1,6 @@
 package app.molby.rcrecommender.api.country;
 
+import app.molby.rcrecommender.domain.country.CountryAccessRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

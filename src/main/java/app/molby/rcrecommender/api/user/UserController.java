@@ -1,5 +1,7 @@
 package app.molby.rcrecommender.api.user;
 
+import app.molby.rcrecommender.api.shared.ErrorResponse;
+import app.molby.rcrecommender.api.shared.ValidationErrorResponse;
 import app.molby.rcrecommender.domain.user.UserEntity;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,13 +26,31 @@ import java.util.List;
         name = "Users",
         description = "CRUD operations for users of the roller coaster recommendation system."
 )
+/**
+ * UserController REST controller in the roller coaster recommender application.
+ *
+ * <p>Exposes endpoints for managing {@link UserDto} resources, including
+ * listing, retrieving, creating, updating, and deleting users. Users
+ * represent end-consumers of the recommendation system and hold basic
+ * profile information and their associated coaster ratings.</p>
+ * @author Bob Molby
+ */
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
+    /**
+     * Spring environment, available for future use (e.g. debugging or
+     * environment-specific behavior).
+     */
     private final ConfigurableEnvironment env;
 
+    /**
+     * Retrieve all users.
+     *
+     * @return a list of all users as {@link UserDto} instances
+     */
     @GetMapping
     @Operation(
             summary = "List all users",
@@ -48,28 +68,45 @@ public class UserController {
                             value = """
                                 [
                                   {
-                                    "id": "user-123",
-                                    "email": "alice@example.com",
-                                    "displayName": "Alice",
-                                    "country": "US"
+                                    "id": "jean_luc_picard",
+                                    "emailAddress": "alice@example.com",
+                                    "firstName": "Alice",
+                                    "lastName": "Anderson",
+                                    "country": "US",
+                                    "coasterRatings": [
+                                      {
+                                        "id": 2001,
+                                        "userId": "jean_luc_picard",
+                                        "coasterId": 101,
+                                        "rating": 4.5
+                                      }
+                                    ]
                                   },
                                   {
                                     "id": "user-456",
-                                    "email": "bob@example.com",
-                                    "displayName": "Bob",
-                                    "country": "CA"
+                                    "emailAddress": "bob@example.com",
+                                    "firstName": "Bob",
+                                    "lastName": "Baker",
+                                    "country": "CA",
+                                    "coasterRatings": []
                                   }
                                 ]
                                 """
                     )
             )
     )
-    public List<UserDto> getAll() {
-        return userService.getAll().stream()
-                .map(userMapper::toDto)
+    public List<UserDto> findAll() {
+        return userService.findAll().stream()
+                .map(userMapper::toUserDto)
                 .toList();
     }
 
+    /**
+     * Retrieve a single user by its identifier.
+     *
+     * @param id the unique identifier of the user to retrieve
+     * @return the matching {@link UserDto}
+     */
     @GetMapping("/{id}")
     @Operation(
             summary = "Get user by ID",
@@ -87,10 +124,19 @@ public class UserController {
                                     summary = "User by ID example",
                                     value = """
                                         {
-                                          "id": "user-123",
-                                          "email": "alice@example.com",
-                                          "displayName": "Alice",
-                                          "country": "US"
+                                          "id": "jean_luc_picard",
+                                          "emailAddress": "alice@example.com",
+                                          "firstName": "Alice",
+                                          "lastName": "Anderson",
+                                          "country": "US",
+                                          "coasterRatings": [
+                                            {
+                                              "id": 2001,
+                                              "userId": "jean_luc_picard",
+                                              "coasterId": 101,
+                                              "rating": 4.5
+                                            }
+                                          ]
                                         }
                                         """
                             )
@@ -102,28 +148,36 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(
-                                    implementation = app.molby.rcrecommender.api.shared.ErrorResponse.class
+                                    implementation = ErrorResponse.class
                             )
                     )
             )
     })
-    public UserDto getById(
+    public UserDto findByUserId(
             @Parameter(
                     description = "ID of the user",
-                    example = "user-123",
+                    example = "jean_luc_picard",
                     required = true
             )
             @PathVariable String id
     ) {
-        UserEntity entity = userService.getById(id);
-        return userMapper.toDto(entity);
+        UserEntity entity = userService.findByUserId(id);
+        return userMapper.toUserDto(entity);
     }
 
+    /**
+     * Create a new user.
+     *
+     * @param userDto the user details to persist
+     * @return the created {@link UserDto}, including its generated identifier
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
             summary = "Create a new user",
-            description = "Creates a new user with the supplied details."
+            description = "Creates a new user with the supplied details.  If the user provided already " +
+                    "exists this will be treated as an upsert and perform an update on the existing record " +
+                    "rather than fail."
     )
     @ApiResponses({
             @ApiResponse(
@@ -137,10 +191,12 @@ public class UserController {
                                     summary = "Created user example",
                                     value = """
                                         {
-                                          "id": "user-123",
-                                          "email": "alice@example.com",
-                                          "displayName": "Alice",
-                                          "country": "US"
+                                          "id": "jean_luc_picard",
+                                          "emailAddress": "alice@example.com",
+                                          "firstName": "Jean-Luc",
+                                          "lastName": "Picard",
+                                          "country": "United States",
+                                          "coasterRatings": []
                                         }
                                         """
                             )
@@ -152,7 +208,7 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(
-                                    implementation = app.molby.rcrecommender.api.shared.ValidationErrorResponse.class
+                                    implementation = ValidationErrorResponse.class
                             )
                     )
             )
@@ -169,21 +225,30 @@ public class UserController {
                                     summary = "User creation request example",
                                     value = """
                                         {
-                                          "email": "alice@example.com",
-                                          "displayName": "Alice",
-                                          "country": "US"
+                                          "emailAddress": "jean.luc.picard@uss.enterprise.org",
+                                          "firstName": "Jean-Luc",
+                                          "lastName": "Picard",
+                                          "country": "United States",
+                                          "coasterRatings": []
                                         }
                                         """
                             )
                     )
             )
-            @RequestBody @Valid UserDto dto
+            @RequestBody @Valid UserDto userDto
     ) {
-        UserEntity toSave = userMapper.toEntity(dto);
-        UserEntity saved = userService.create(toSave);
-        return userMapper.toDto(saved);
+        UserEntity userEntity = userMapper.toUserEntity(userDto);
+        userEntity = userService.create(userEntity);
+        return userMapper.toUserDto(userEntity);
     }
 
+    /**
+     * Update an existing user with new data.
+     *
+     * @param id  the identifier of the user to update
+     * @param userDto the new state for the user
+     * @return the updated {@link UserDto}
+     */
     @PutMapping("/{id}")
     @Operation(
             summary = "Update an existing user",
@@ -201,10 +266,25 @@ public class UserController {
                                     summary = "Updated user example",
                                     value = """
                                     {
-                                      "id": "user-123",
-                                      "email": "alice@example.com",
-                                      "displayName": "Alice A.",
-                                      "country": "US"
+                                      "id": "jean_luc_picard",
+                                      "emailAddress": "jean.luc.picard@uss.enterprise.org",
+                                      "firstName": "Jean-Luc",
+                                      "lastName": "Picard",
+                                      "country": "United States",
+                                      "coasterRatings": [
+                                        {
+                                          "id": 2001,
+                                          "userId": "jean_luc_picard",
+                                          "coasterId": 101,
+                                          "rating": 4.5
+                                        },
+                                        {
+                                          "id": 2002,
+                                          "userId": "jean_luc_picard",
+                                          "coasterId": 102,
+                                          "rating": 3.5
+                                        }
+                                      ]
                                     }
                                     """
                             )
@@ -216,7 +296,7 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(
-                                    implementation = app.molby.rcrecommender.api.shared.ValidationErrorResponse.class
+                                    implementation = ValidationErrorResponse.class
                             )
                     )
             ),
@@ -226,7 +306,7 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(
-                                    implementation = app.molby.rcrecommender.api.shared.ErrorResponse.class
+                                    implementation = ErrorResponse.class
                             )
                     )
             )
@@ -234,7 +314,7 @@ public class UserController {
     public UserDto update(
             @Parameter(
                     description = "ID of the user to update",
-                    example = "user-123",
+                    example = "jean_luc_picard",
                     required = true
             )
             @PathVariable String id,
@@ -249,22 +329,36 @@ public class UserController {
                                     summary = "User update request example",
                                     value = """
                                         {
-                                          "email": "alice@example.com",
-                                          "displayName": "Alice A.",
-                                          "country": "US"
+                                          "emailAddress": "alice@example.com",
+                                          "firstName": "Alice",
+                                          "lastName": "Andrews",
+                                          "country": "US",
+                                          "coasterRatings": [
+                                            {
+                                              "id": 2001,
+                                              "userId": "jean_luc_picard",
+                                              "coasterId": 101,
+                                              "rating": 4.5
+                                            }
+                                          ]
                                         }
                                         """
                             )
                     )
             )
-            @RequestBody @Valid UserDto dto
+            @RequestBody @Valid UserDto userDto
     ) {
         // Service owns merge logic; mapper builds a “new-state” entity
-        UserEntity updatedState = userMapper.toEntity(dto);
-        UserEntity updated = userService.update(id, updatedState);
-        return userMapper.toDto(updated);
+        UserEntity userEntity = userMapper.toUserEntity(userDto);
+        userEntity = userService.update(id, userEntity);
+        return userMapper.toUserDto(userEntity);
     }
 
+    /**
+     * Delete a user by its identifier.
+     *
+     * @param id the unique identifier of the user to delete
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(
@@ -282,7 +376,7 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(
-                                    implementation = app.molby.rcrecommender.api.shared.ErrorResponse.class
+                                    implementation = ErrorResponse.class
                             )
                     )
             )
@@ -290,7 +384,7 @@ public class UserController {
     public void delete(
             @Parameter(
                     description = "ID of the user to delete",
-                    example = "user-123",
+                    example = "jean_luc_picard",
                     required = true
             )
             @PathVariable String id

@@ -1,18 +1,19 @@
 package app.molby.rcrecommender.api.country;
 
 import app.molby.rcrecommender.domain.country.CountryAccessEntity;
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
+/**
+ * CountryAccessMapper part of the roller coaster recommender application.
+ */
 public interface CountryAccessMapper {
 
-    CountryAccessDto toDto(CountryAccessEntity entity);
+    CountryAccessDto toCountryAccessDto(CountryAccessEntity countryAccessEntity);
 
-    List<CountryAccessDto> toDtoList(List<CountryAccessEntity> entities);
+    List<CountryAccessDto> toCountryAccessDtos(List<CountryAccessEntity> countryAccessEntityList);
 
-    CountryAccessEntity toEntity(CountryAccessDto dto);
+    CountryAccessEntity toCountryAccessEntity(CountryAccessDto countryAccessDto);
 }

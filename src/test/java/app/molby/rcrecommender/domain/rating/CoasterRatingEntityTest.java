@@ -1,23 +1,12 @@
 package app.molby.rcrecommender.domain.rating;
 
+import app.molby.rcrecommender.util.PojoTestHandler;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-@ExtendWith(MockitoExtension.class)
-public class CoasterRatingEntityTest {
-
-    @InjectMocks
-    private CoasterRatingEntity subject;
+class CoasterRatingEntityTest {
 
     @Test
-    void subjectIsCreated() {
-        assertNotNull(subject);
+    void validatePojo() throws Exception {
+        PojoTestHandler.assertPojoContract(CoasterRatingEntity.class);
     }
-
 }

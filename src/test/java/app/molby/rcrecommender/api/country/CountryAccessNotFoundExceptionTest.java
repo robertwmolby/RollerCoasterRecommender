@@ -1,23 +1,27 @@
 package app.molby.rcrecommender.api.country;
 
+import app.molby.rcrecommender.api.shared.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class CountryAccessNotFoundExceptionTest {
-
-    @InjectMocks
-    private CountryAccessNotFoundException subject;
+class CountryAccessNotFoundExceptionTest {
 
     @Test
-    void subjectIsCreated() {
-        assertNotNull(subject);
+    void constructor_shouldBuildMessageWithCountryAccessAndId() {
+        Long id = 42L;
+
+        CountryAccessNotFoundException ex = new CountryAccessNotFoundException(id);
+
+        assertTrue(ex instanceof ResourceNotFoundException);
+        assertEquals("Country access with id 42 not found", ex.getMessage());
     }
 
+    @Test
+    void constructor_shouldHandleNullIdInMessage() {
+        CountryAccessNotFoundException ex = new CountryAccessNotFoundException(null);
+
+        // ResourceNotFoundException formats message as: resourceName + " with id " + id + " not found"
+        assertEquals("Country access with id null not found", ex.getMessage());
+    }
 }

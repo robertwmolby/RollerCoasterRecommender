@@ -22,19 +22,21 @@ import java.util.List;
               "ratings": [
                 {
                   "coasterId": 101,
-                  "score": 5,
-                  "comment": "Amazing airtime and smooth ride!"
+                  "score": 5
                 },
                 {
                   "coasterId": 202,
-                  "score": 3,
-                  "comment": "Good but a bit rough in the back row."
+                  "score": 3
                 }
               ],
               "top_k": 5
             }
             """
 )
+/**
+ * UserRecommendRequest part of the roller coaster recommender application.
+ * @author Bob Molby
+ */
 public class UserRecommendRequest {
 
     /**
@@ -57,19 +59,17 @@ public class UserRecommendRequest {
                 [
                   {
                     "coasterId": 101,
-                    "score": 5,
-                    "comment": "Amazing airtime and smooth ride!"
+                    "score": 5
                   },
                   {
                     "coasterId": 202,
-                    "score": 3,
-                    "comment": "Good but a bit rough in the back row."
+                    "score": 3
                   }
                 ]
                 """,
             nullable = true
     )
-    private List<UserRating> ratings;
+    private List<UserRatingDto> ratings;
 
     /**
      * Maximum number of recommendations to return.

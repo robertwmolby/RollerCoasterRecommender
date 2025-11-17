@@ -1,4 +1,4 @@
-package app.molby.rcrecommender.domain.rating;
+package app.molby.rcrecommender.api.rating;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,10 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CoasterRatingRepositoryTest {
+public class CoasterRatingDtoTest {
 
     @InjectMocks
-    private CoasterRatingRepository subject;
+    private CoasterRatingDto subject;
 
     @Test
     void subjectIsCreated() {
