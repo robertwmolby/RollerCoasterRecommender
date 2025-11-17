@@ -1,5 +1,6 @@
 package app.molby.rcrecommender.api.recommender;
 
+import app.molby.rcrecommender.api.user.UserNotFoundException;
 import app.molby.rcrecommender.domain.country.CountryAccessEntity;
 import app.molby.rcrecommender.domain.country.CountryAccessRepository;
 import app.molby.rcrecommender.domain.country.CountryEntity;
@@ -54,7 +55,11 @@ public class RecommendationService {
      */
     public List<CoasterRecommendation> getRecommendationsForUser(String userId) {
         // 1) Load user ratings from DB
-        UserEntity user = userRepository.findById(userId).get();
+        Optional<UserEntity> optUserEntity = userRepository.findById(userId);
+        if (!optUserEntity.isPresent()) {
+            throw new UserNotFoundException(userId);
+        }
+        UserEntity user = optUserEntity.get();
         Set<CoasterRatingEntity> ratingEntities = user.getCoasterRatings();
         if (ratingEntities.isEmpty()) {
             return Collections.emptyList();
