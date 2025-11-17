@@ -6,7 +6,7 @@ The **Roller Coaster Recommender Service** provides REST APIs for generating per
 
 This project serves as both a functional microservice and a technical portfolio piece demonstrating:
 
-- Spring Boot microservice architecture
+- Spring Boot microservice architecture (access to endpoints via Swagger can currently be found at (http://a3edcc49fa0874231a028402c7ba9ebf-41972715.us-east-2.elb.amazonaws.com/swagger-ui/index.html)
 - Machine-learning-aligned recommendation techniques
 - API design (accessible via OpenAPI/Swagger)
 - Containerization and cloud-native deployment
