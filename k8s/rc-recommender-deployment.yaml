@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rc-recommender
+  labels:
+    app: rc-recommender
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rc-recommender
+  template:
+    metadata:
+      labels:
+        app: rc-recommender
+    spec:
+      containers:
+        - name: rc-recommender
+          image: 206501439319.dkr.ecr.us-east-2.amazonaws.com/rc-recommender-api:1.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rc-recommender-db-secret
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rc-recommender-db-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rc-recommender-db-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: rc-recommender-db-secret
+                  key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+            - name: SPRING_JPA_PROPERTIES_HIBERNATE_HIBERNATE_DEFAULT_SCHEMA
+              valueFrom:
+                secretKeyRef:
+                  name: rc-recommender-db-secret
+                  key: SPRING_JPA_PROPERTIES_HIBERNATE_HIBERNATE_DEFAULT_SCHEMA
+            - name: RECOMMENDER_API_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rc-recommender-db-secret
+                  key: RECOMMENDER_API_URL
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rc-recommender
+  labels:
+    app: rc-recommender
+spec:
+  type: ClusterIP
+  selector:
+    app: rc-recommender
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
