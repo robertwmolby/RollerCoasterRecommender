@@ -1,12 +1,17 @@
-package app.molby.rcrecommender.api.shared;
+package app.molby.rcrecommender.config;
 
+import app.molby.rcrecommender.api.shared.ErrorResponse;
+import app.molby.rcrecommender.api.shared.ResourceNotFoundException;
+import app.molby.rcrecommender.api.shared.ValidationErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.Instant;
 import java.util.List;
+
 
 @RestControllerAdvice
 /**
@@ -18,6 +23,8 @@ import java.util.List;
  * @author Bob Molby
  */
 public class GlobalExceptionHandler {
+
+    public static Logger LOGGER = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * Handles cases where a requested resource cannot be found.
@@ -75,6 +82,25 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles 404 (not found exceptions) by just passing it along.
+     * @param ex the exception that was thrown
+     * @param request the HTTP request to an incorrect page
+     * @return standardized 404 error response object
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(Exception ex, HttpServletRequest request) {
+        LOGGER.info("Request was made to an invalid page {}.", request.getRequestURI());
+        return new ErrorResponse(
+                Instant.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Page Not Found",
+                "You have requested a page that does not exist.",
+                request.getRequestURI()
+        );
+    }
+
+    /**
      * Handles all uncaught exceptions that are not covered by more specific handlers.
      *
      * <p>Acts as a fallback to prevent uncontrolled stack traces from leaking to
@@ -88,6 +114,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneric(Exception ex, HttpServletRequest request) {
+        LOGGER.error("Unhandled exception: {}", ex.getMessage());
         return new ErrorResponse(
                 Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

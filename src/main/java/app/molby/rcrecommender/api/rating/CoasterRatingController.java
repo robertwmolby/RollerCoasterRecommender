@@ -11,6 +11,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +47,7 @@ public class CoasterRatingController {
     /**
      * Create a new roller coaster rating.
      *
-     * @param dto the rating data submitted by the client
+     * @param coasterRatingDto the rating data submitted by the client
      * @return the persisted rating with an assigned identifier
      */
     @PostMapping
@@ -190,68 +195,121 @@ public class CoasterRatingController {
             )
             @PathVariable Long id
     ) {
-        CoasterRatingEntity coasterRatingEntity = ratingService.getById(id);
+        CoasterRatingEntity coasterRatingEntity = ratingService.findById(id);
         return mapper.toDto(coasterRatingEntity);
     }
 
+
     /**
-     * Retrieve all coaster ratings.
+     * Retrieves a paginated list of coaster ratings.
      *
-     * @return list of all {@link CoasterRatingDto} instances
+     * <p>Supports standard Spring Data pagination and sorting parameters:
+     * <ul>
+     *   <li><code>page</code> - zero-based page index (default: 0)</li>
+     *   <li><code>size</code> - page size (default: 20, capped at 100)</li>
+     *   <li><code>sort</code> - sorting criteria in the format <code>property,(asc|desc)</code>.
+     *       Multiple sort parameters are supported, e.g. <code>sort=rating,desc&sort=id,asc</code>.</li>
+     * </ul>
+     *
+     * @param pageable pagination and sorting information populated from query parameters
+     * @return a page of {@link CoasterRatingDto} objects and associated pagination metadata
      */
     @GetMapping
     @Operation(
-            summary = "List all coaster ratings",
-            description = "Returns all coaster ratings currently stored in the system.",
+            summary = "List coaster ratings (paginated)",
+            description = """
+                Returns a paginated list of coaster ratings currently stored in the system.
+
+                Use the standard Spring Data pagination and sorting query parameters:
+                - page: zero-based page index (e.g., 0)
+                - size: page size (e.g., 20)
+                - sort: property and direction (e.g., sort=rating,desc)
+                """,
             tags = {"Coaster Ratings"}
     )
-    @ApiResponse(
-            responseCode = "200",
-            description = "List of ratings",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            implementation = CoasterRatingDto.class,
-                            name = "CoasterRatingListResponse",
-                            title = "Coaster Rating List",
-                            description = "List of all coaster ratings."
-                    ),
-                    examples = @ExampleObject(
-                            name = "RatingList",
-                            summary = "List of ratings example",
-                            description = "Example response with multiple coaster ratings.",
-                            value = """
-                                [
-                                  {
-                                    "id": 2001,
-                                    "userId": "dr_seuss",
-                                    "coasterId": 102,
-                                    "rating": 4.5
-                                  },
-                                  {
-                                    "id": 2002,
-                                    "userId": "john_glenn",
-                                    "coasterId": 102,
-                                    "rating": 3.5
-                                  }
-                                ]
-                                """
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Paginated list of coaster ratings.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(
+                                    name = "CoasterRatingPageResponse",
+                                    title = "Coaster Rating Page",
+                                    description = "Paginated response containing coaster ratings and pagination metadata."
+                            ),
+                            examples = @ExampleObject(
+                                    name = "RatingPage",
+                                    summary = "Paginated list of ratings example",
+                                    description = """
+                                        Example response showing a single page of coaster ratings.
+                                        Default page size is 20 and the maximum page size is 100.
+                                        """,
+                                    value = """
+                                        {
+                                          "content": [
+                                            {
+                                              "id": 2001,
+                                              "userId": "dr_seuss",
+                                              "coasterId": 102,
+                                              "rating": 4.5
+                                            },
+                                            {
+                                              "id": 2002,
+                                              "userId": "john_glenn",
+                                              "coasterId": 102,
+                                              "rating": 3.5
+                                            }
+                                          ],
+                                          "pageable": {
+                                            "pageNumber": 0,
+                                            "pageSize": 2,
+                                            "sort": {
+                                              "sorted": true,
+                                              "unsorted": false,
+                                              "empty": false
+                                            },
+                                            "offset": 0,
+                                            "paged": true,
+                                            "unpaged": false
+                                          },
+                                          "totalElements": 42,
+                                          "totalPages": 21,
+                                          "last": false,
+                                          "size": 2,
+                                          "number": 0,
+                                          "sort": {
+                                            "sorted": true,
+                                            "unsorted": false,
+                                            "empty": false
+                                          },
+                                          "numberOfElements": 2,
+                                          "first": true,
+                                          "empty": false
+                                        }
+                                        """
+                            )
                     )
             )
-    )
-    public List<CoasterRatingDto> findAll() {
-        return ratingService.getAll().stream()
-                .map(mapper::toDto)
-                .toList();
+    })
+    public Page<CoasterRatingDto> findAll(
+            @ParameterObject
+            @PageableDefault(
+                    size = 20,
+                    page = 0,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            )
+            Pageable pageable
+    ) {
+        return ratingService.findAll(pageable).map(mapper::toDto);
     }
-
-    // ---- UPDATE ----
 
     /**
      * Update an existing coaster rating.
      *
      * @param id  the ID of the rating to update
-     * @param dto the new state of the rating
+     * @param coasterRatingDto the new state of the rating
      * @return the updated {@link CoasterRatingDto}
      */
     @PutMapping("/{id}")

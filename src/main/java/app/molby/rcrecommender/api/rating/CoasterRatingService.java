@@ -3,6 +3,8 @@ package app.molby.rcrecommender.api.rating;
 import app.molby.rcrecommender.domain.rating.CoasterRatingEntity;
 import app.molby.rcrecommender.domain.rating.CoasterRatingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,19 +40,25 @@ public class CoasterRatingService {
      * @return the found rating entity
      * @throws CoasterRatingNotFoundException if no rating exists with the given id
      */
-    public CoasterRatingEntity getById(Long id) {
+    public CoasterRatingEntity findById(Long id) {
         return coasterRatingRepository.findById(id)
                 .orElseThrow(() -> new CoasterRatingNotFoundException(id));
     }
 
     /**
-     * Retrieves all coaster ratings.
+     * Retrieves a paginated list of coaster ratings.
      *
-     * @return a list of all rating entities
+     * <p>Supports standard Spring Data pagination and sorting via the {@link Pageable}
+     * parameter. Callers may specify page number, page size, and sorting rules
+     * (e.g., <code>?page=0&size=20&sort=userId,coasterId</code>).</p>
+     *
+     * @param pageable pagination and sorting information
+     * @return a {@link Page} of {@link CoasterRatingEntity} objects
      */
-    public List<CoasterRatingEntity> getAll() {
-        return coasterRatingRepository.findAll();
+    public Page<CoasterRatingEntity> findAll(Pageable pageable) {
+        return coasterRatingRepository.findAll(pageable);
     }
+
 
     /**
      * Updates an existing coaster rating.

@@ -2,6 +2,7 @@ package app.molby.rcrecommender.api.user;
 
 import app.molby.rcrecommender.api.rating.CoasterRatingDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -70,6 +71,7 @@ public class UserDto {
             description = "User's given name.",
             example = "Alice"
     )
+    @NotBlank(message = "First name cannot be blank.")
     private String firstName;
 
     /**
@@ -80,16 +82,18 @@ public class UserDto {
             description = "User's family name.",
             example = "Anderson"
     )
+    @NotBlank(message = "Last name cannot be blank.")
     private String lastName;
 
     /**
      * ISO 3166-1 alpha-2 country code representing the user's country.
      */
     @Schema(
-            title = "Country Code",
-            description = "ISO 3166-1 alpha-2 country code representing the user's country of residence.",
-            example = "US"
+            title = "Country Name",
+            description = "Name of country as in list of countries in other ais.",
+            example = "United States"
     )
+    @NotBlank(message = "Country code cannot be blank.")
     private String country;
 
     /**

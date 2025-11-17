@@ -101,7 +101,7 @@ public class RecommendationController {
     public List<CoasterRecommendation> findRecommendations(
             @Parameter(
                     description = "User identifier for which recommendations are requested",
-                    example = "jean_luc_picard",
+                    example = "bob_molby",
                     required = true
             )
             @PathVariable String userId

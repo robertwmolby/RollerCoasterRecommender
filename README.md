@@ -41,6 +41,10 @@ Available via Swagger UI (`/swagger-ui.html` or '/v3/api-docs').
 ### 5. Fully Containerized
 Packaged as a lightweight Docker image deployable in any environment.
 
+
+### 6. SpringBoot and Lombok
+The service is built using SpringBoot and follows best practices for microservice architecture.  It leverages SpringBoot Data, Actuator, Secucrity (disabled by default), and other common SpringBoot features.  It also uses Lombok for immutable POJOs and other boilerplate code.  It has been built with Java 21.  
+
 ## 🚀 Deployment Architecture (AWS)
 ### AWS EKS (Elastic Kubernetes Service)
 - Runs the Dockerized Spring Boot microservice  
@@ -73,6 +77,9 @@ The service includes:
 - Reflection-based POJO verification tests  
 - MockMvc controller tests  
 - Deterministic test data for similarity validation  
+
+## External API Intebration
+This service leverages separate Python APIs developed for user recommendation purposes.  Details on those APIs can currently be found in AWS here (http://ac3a45cc0862c4debaeed73d6650680d-1292001656.us-east-2.elb.amazonaws.com/docs) and the github repository for the Python project is located here: (http://ac3a45cc0862c4debaeed73d6650680d-1292001656.us-east-2.elb.amazonaws.com/docs).
 
 ## 📈 Why I Built This Project
 ### 1. Demonstrate practical engineering skills

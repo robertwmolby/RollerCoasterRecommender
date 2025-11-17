@@ -1,9 +1,12 @@
 package app.molby.rcrecommender.api.rating;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Range;
+
 import java.math.BigDecimal;
 
 @Data
@@ -32,6 +35,7 @@ public class CoasterRatingDto {
             description = "Synthetic primary key identifying the rating record.",
             example = "2001"
     )
+    @NotNull(message = "Rating ID cannot be null.")
     private Long id;
 
     /**
@@ -41,8 +45,9 @@ public class CoasterRatingDto {
             name = "userId",
             title = "User ID",
             description = "Identifier of the user who created the rating.",
-            example = "501"
+            example = "bob_molby"
     )
+    @NotBlank(message = "User ID cannot be blank.")
     private String userId;
 
     /**
@@ -54,6 +59,7 @@ public class CoasterRatingDto {
             description = "Identifier of the roller coaster being rated.",
             example = "102"
     )
+    @NotNull(message = "Coaster ID cannot be null.")
     private Long coasterId;
 
     /**
@@ -68,5 +74,7 @@ public class CoasterRatingDto {
                     "0.5-5 in 0.5 increments",
             example = "4"
     )
+    @Positive(message = "Rating must be > 0.")
+    @Max(value = 5, message = "Rating must be less than or equal to 5.")
     private BigDecimal rating;
 }

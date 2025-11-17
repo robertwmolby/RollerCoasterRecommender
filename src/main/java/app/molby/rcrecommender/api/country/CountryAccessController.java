@@ -261,7 +261,7 @@ public class CountryAccessController {
      * Update an existing country access mapping.
      *
      * @param id  the ID of the mapping to update
-     * @param dto the new state of the country access mapping
+     * @param countryAccessDto the new state of the country access mapping
      * @return the updated {@link CountryAccessDto}
      */
     @PutMapping("/{id}")
