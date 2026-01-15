@@ -1,3 +1,6 @@
+# BE AWARE!!!
+For the immediate time all live apis and swagger pages are inaccessible in order to avoid accruing ongoing AWS costs. If you desire to see them for the purpose of evaluation purposes, please contact me and I will create the necessary aws artfacts and provide you with updated url's.
+
 # Roller Coaster Recommender Service
 A user recommendation system for roller coasters, implemented as a Spring Boot microservice and deployed to AWS.
 
