@@ -110,7 +110,7 @@ class UserControllerTest {
         dto.setLastName("Anderson");
         dto.setCountry("US");
 
-        when(userService.findById(userId)).thenReturn(entity);
+        when(userService.findByUserId(userId)).thenReturn(entity);
         when(userMapper.toUserDto(entity)).thenReturn(dto);
 
         // When / Then
@@ -122,7 +122,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.lastName").value("Anderson"))
                 .andExpect(jsonPath("$.country").value("US"));
 
-        verify(userService, times(1)).findById(userId);
+        verify(userService, times(1)).findByUserId(userId);
     }
 
     @Test
