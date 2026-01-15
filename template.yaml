@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  DbSecretArn:
+    Type: String
+    Description: ARN of the Secrets Manager secret that contains DB settings
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+
+  AppFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: java21
+      MemorySize: 1024
+      Timeout: 30
+      Handler: app.molby.rcrecommender.StreamLambdaHandler::handleRequest
+      CodeUri: .
+      Environment:
+        Variables:
+          DB_SECRET_ARN: !Ref DbSecretArn
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Ref DbSecretArn
+      Events:
+        ProxyApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /{proxy+}
+            Method: ANY
+    Metadata:
+      BuildMethod: java21
+      BuildProperties:
+        GradleBuildArgs: "shadowJar -x test"
+Outputs:
+  HttpApiUrl:
+    Description: "HTTP API endpoint (prod stage)"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod"

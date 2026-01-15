@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: rc-recommender
-          image: 206501439319.dkr.ecr.us-east-2.amazonaws.com/rc-recommender-api:1.1
+          image: 206501439319.dkr.ecr.us-east-2.amazonaws.com/rc-recommender-api:1.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

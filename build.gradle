@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.7'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.example'
@@ -54,6 +55,18 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // AWS lambda
+    implementation "com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.1.5"
+    // usually pulled transitively, but harmless if explicit:
+    implementation "com.amazonaws:aws-lambda-java-core:1.2.3"
+    implementation "com.amazonaws:aws-lambda-java-events:3.11.5"
+
+    // AWS SDK v2 – Secrets Manager
+    implementation "software.amazon.awssdk:secretsmanager:2.25.63"
+    implementation "software.amazon.awssdk:regions:2.25.63"
+    // Jackson (you likely already have this, but be explicit)
+    implementation "com.fasterxml.jackson.core:jackson-databind"
+
     // MapStruct
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
@@ -71,4 +84,19 @@ dependencyManagement {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+tasks.named('bootJar') {
+    enabled = true
+}
+tasks.named('jar') {
+    enabled = true
+}
+tasks.named('shadowJar') {
+    archiveFileName.set('app.jar')
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    zip64 true
+}
+tasks.named('build') {
+    dependsOn(tasks.named('shadowJar'))
 }
